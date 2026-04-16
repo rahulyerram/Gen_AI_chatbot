@@ -27,11 +27,10 @@ api_key = os.getenv("GROQ_API_KEY") or st.secrets.get("GROQ_API_KEY")
 if not api_key:
     st.error("❌ GROQ_API_KEY not found. Add it in .env (local) or Streamlit Secrets.")
     st.stop()
-
+os.environ["GROQ_API_KEY"] = "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"
 llm = ChatGroq(
     model="llama-3.3-70b-versatile",
     temperature=0.0,
-    groq_api_key=api_key
 )
 
 user_prompt = st.chat_input("Ask Chatbot...")
