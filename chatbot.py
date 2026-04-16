@@ -27,6 +27,7 @@ for message in st.session_state.chat_history:
 llm = ChatGroq(
     model="llama-3.3-70b-versatile",
     temperature=0.0,
+    groq_api_key=os.getenv("GROQ_API_KEY") 
 )
 
 # input box
