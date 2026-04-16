@@ -3,9 +3,10 @@ import streamlit as st
 from langchain_groq import ChatGroq
 import os
 
-# load env (works locally)
+# Load environment variables (works locally)
 load_dotenv()
 
+# Streamlit page setup
 st.set_page_config(
     page_title="Chatbot",
     page_icon="🤖",
@@ -14,37 +15,56 @@ st.set_page_config(
 
 st.title("💬 Generative AI Chatbot")
 
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
-
-for message in st.session_state.chat_history:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
-
-# ✅ Robust API key handling
-api_key = os.getenv("GROQ_API_KEY") or st.secrets.get("GROQ_API_KEY")
+# ✅ Get API key (works for both local + Streamlit Cloud)
+api_key = st.secrets.get("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
 
 if not api_key:
     st.error("❌ GROQ_API_KEY not found. Add it in .env (local) or Streamlit Secrets.")
     st.stop()
-os.environ["GROQ_API_KEY"] = "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"
+
+# ✅ Initialize LLM with API key
 llm = ChatGroq(
     model="llama-3.3-70b-versatile",
     temperature=0.0,
+    groq_api_key=api_key
 )
 
+# Initialize chat history
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
+# Display chat history
+for message in st.session_state.chat_history:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+# Input box
 user_prompt = st.chat_input("Ask Chatbot...")
 
 if user_prompt:
+    # Show user message
     st.chat_message("user").markdown(user_prompt)
     st.session_state.chat_history.append({"role": "user", "content": user_prompt})
 
-    response = llm.invoke(
-        input=[{"role": "system", "content": "You are a helpful assistant"}, *st.session_state.chat_history]
+    try:
+        # Get response from LLM
+        response = llm.invoke(
+            input=[
+                {"role": "system", "content": "You are a helpful assistant"},
+                *st.session_state.chat_history
+            ]
+        )
+
+        assistant_response = response.content
+
+    except Exception as e:
+        assistant_response = f"❌ Error: {str(e)}"
+
+    # Save response
+    st.session_state.chat_history.append(
+        {"role": "assistant", "content": assistant_response}
     )
 
-    assistant_response = response.content
-    st.session_state.chat_history.append({"role": "assistant", "content": assistant_response})
-
+    # Display response
     with st.chat_message("assistant"):
         st.markdown(assistant_response)
