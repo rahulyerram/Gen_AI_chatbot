@@ -14,15 +14,43 @@ st.set_page_config(
 # 🎨 Romantic Theme
 st.markdown("""
     <style>
+    /* Page background */
     body {
         background: linear-gradient(to right, #ff9a9e, #fad0c4);
     }
+
+    /* Chat message box */
     .stChatMessage {
         border-radius: 15px;
         padding: 12px;
         background-color: #fff0f5;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
     }
+
+    /* 🔥 FIX TEXT COLOR (MOST IMPORTANT) */
+    .stMarkdown, .stText, p, span, div {
+        color: #222222 !important;   /* dark text */
+        font-weight: 500;
+    }
+
+    /* Input box text */
+    textarea, input {
+        color: #000000 !important;
+        background-color: #ffffff !important;
+    }
+
+    /* Placeholder text */
+    ::placeholder {
+        color: #666 !important;
+    }
+
+    /* Chat input area */
+    section[data-testid="stChatInput"] {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 8px;
+    }
+
     </style>
 """, unsafe_allow_html=True)
 
