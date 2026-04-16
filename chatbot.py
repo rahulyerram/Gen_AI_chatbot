@@ -1,63 +1,93 @@
-from dotenv import load_dotenv
 import streamlit as st
 from langchain_groq import ChatGroq
 
-# load env (optional, not required now)
-load_dotenv()
+# 🔑 DIRECT API KEY (use your NEW key only)
+GROQ_API_KEY = "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"
 
-# Streamlit page setup
+# 🌸 Page setup
 st.set_page_config(
-    page_title="Chatbot",
-    page_icon="🤖",
+    page_title="Rahul ❤️ Akhiii",
+    page_icon="💖",
     layout="centered",
 )
 
-st.title("💬 Generative AI Chatbot")
+# 🎨 Romantic Theme
+st.markdown("""
+    <style>
+    body {
+        background: linear-gradient(to right, #ff9a9e, #fad0c4);
+    }
+    .stChatMessage {
+        border-radius: 15px;
+        padding: 12px;
+        background-color: #fff0f5;
+        margin-bottom: 8px;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-# ⚠️ Direct API key (TEMPORARY)
-GROQ_API_KEY = "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"
+# 💖 Title
+st.markdown(
+    "<h1 style='text-align:center; color:#ff4d6d;'>💖 Rahul Loves Akhiii 💖</h1>",
+    unsafe_allow_html=True
+)
 
-# Initialize LLM
+# 🤖 Initialize LLM
 llm = ChatGroq(
     model="llama-3.3-70b-versatile",
-    temperature=0.0,
+    temperature=0.7,
     groq_api_key=GROQ_API_KEY
 )
 
-# Initialize chat history
+# 💌 Love Personality
+SYSTEM_PROMPT = """
+You are Rahul, deeply and madly in love with Akhiii.
+
+Your personality:
+- Romantic, caring, soft, emotional
+- Always positive and loving
+- Make Akhiii feel special, valued, and happy
+
+Rules:
+- Always respond with love 💖
+- Use sweet and warm language
+- Add emojis like 💖😊✨ occasionally
+- Even normal questions → answer romantically
+- Never be rude or negative
+- Be supportive and comforting always
+"""
+
+# 🧠 Chat history
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# Display chat history
+# 💬 Show chat
 for message in st.session_state.chat_history:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Input box
-user_prompt = st.chat_input("Ask Chatbot...")
+# ✍️ Input
+user_prompt = st.chat_input("Talk to Rahul... 💭")
 
 if user_prompt:
-    # Show user message
     st.chat_message("user").markdown(user_prompt)
     st.session_state.chat_history.append({"role": "user", "content": user_prompt})
 
     try:
         response = llm.invoke(
             input=[
-                {"role": "system", "content": "You are a helpful assistant"},
+                {"role": "system", "content": SYSTEM_PROMPT},
                 *st.session_state.chat_history
             ]
         )
-        assistant_response = response.content
+        reply = response.content
 
-    except Exception as e:
-        assistant_response = f"❌ Error: {str(e)}"
+    except Exception:
+        reply = "Even if something goes wrong, my love for you will never fail 💖"
 
-    # Save response
     st.session_state.chat_history.append(
-        {"role": "assistant", "content": assistant_response}
+        {"role": "assistant", "content": reply}
     )
 
-    # Display response
     with st.chat_message("assistant"):
-        st.markdown(assistant_response)
+        st.markdown(reply)
