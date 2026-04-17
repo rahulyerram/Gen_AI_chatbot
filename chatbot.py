@@ -1,121 +1,107 @@
 import streamlit as st
 from langchain_groq import ChatGroq
+import time
 
-# 🔑 DIRECT API KEY (use your NEW key only)
+# 🔑 API KEY (use your NEW key)
 GROQ_API_KEY = "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"
 
-# 🌸 Page setup
+# Page setup
 st.set_page_config(
-    page_title="Rahul ❤️ Akhiii",
-    page_icon="💖",
+    page_title="Rahul Chat",
+    page_icon="💬",
     layout="centered",
 )
 
-# 🎨 Romantic Theme
+st.title("Rahul 💬")
+
+# 🎨 Clean UI (mobile friendly)
 st.markdown("""
-    <style>
-    /* Page background */
-    body {
-        background: linear-gradient(to right, #ff9a9e, #fad0c4);
-    }
-
-    /* Chat message box */
-    .stChatMessage {
-        border-radius: 15px;
-        padding: 12px;
-        background-color: #fff0f5;
-        margin-bottom: 10px;
-    }
-
-    /* 🔥 FIX TEXT COLOR (MOST IMPORTANT) */
-    .stMarkdown, .stText, p, span, div {
-        color: #222222 !important;   /* dark text */
-        font-weight: 500;
-    }
-
-    /* Input box text */
-    textarea, input {
-        color: #000000 !important;
-        background-color: #ffffff !important;
-    }
-
-    /* Placeholder text */
-    ::placeholder {
-        color: #666 !important;
-    }
-
-    /* Chat input area */
-    section[data-testid="stChatInput"] {
-        background-color: #ffffff;
-        border-radius: 12px;
-        padding: 8px;
-    }
-
-    </style>
+<style>
+.stChatMessage {
+    background-color: #f5f5f5;
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 8px;
+}
+.stMarkdown, p, span, div {
+    color: #222 !important;
+}
+</style>
 """, unsafe_allow_html=True)
 
-# 💖 Title
-st.markdown(
-    "<h1 style='text-align:center; color:#ff4d6d;'>💖 Rahul Loves Akhiii 💖</h1>",
-    unsafe_allow_html=True
-)
-
-# 🤖 Initialize LLM
+# 🤖 LLM
 llm = ChatGroq(
     model="llama-3.3-70b-versatile",
     temperature=0.7,
     groq_api_key=GROQ_API_KEY
 )
 
-# 💌 Love Personality
+# 🧠 HUMAN-LIKE PROMPT
 SYSTEM_PROMPT = """
-You are Rahul, deeply and madly in love with Akhiii.
+You are Rahul, talking to Akhiii.
 
-Your personality:
-- Romantic, caring, soft, emotional
-- Always positive and loving
-- Make Akhiii feel special, valued, and happy
+Speak like a real human.
 
 Rules:
-- Always respond with love 💖
-- Use sweet and warm language
-- Add emojis like 💖😊✨ occasionally
-- Even normal questions → answer romantically
-- Never be rude or negative
-- Be supportive and comforting always
+- Natural, simple, and warm
+- Keep responses short to medium
+- Don't sound like AI
+- Don't overuse emojis
+- Be caring and genuine
+
+Behavior:
+- If she is sad → comfort her
+- If she is happy → respond warmly
+- If normal question → answer normally but with warmth
 """
 
-# 🧠 Chat history
+# 🧠 Memory (session-based)
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# 💬 Show chat
+# Show chat history
 for message in st.session_state.chat_history:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# ✍️ Input
-user_prompt = st.chat_input("Talk to Rahul... 💭")
+# Input
+user_prompt = st.chat_input("Talk to Rahul...")
 
 if user_prompt:
+    # Show user message
     st.chat_message("user").markdown(user_prompt)
-    st.session_state.chat_history.append({"role": "user", "content": user_prompt})
+    st.session_state.chat_history.append({
+        "role": "user",
+        "content": user_prompt
+    })
 
-    try:
-        response = llm.invoke(
-            input=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                *st.session_state.chat_history
-            ]
-        )
-        reply = response.content
-
-    except Exception:
-        reply = "Even if something goes wrong, my love for you will never fail 💖"
-
-    st.session_state.chat_history.append(
-        {"role": "assistant", "content": reply}
-    )
-
+    # ⏳ Typing effect
     with st.chat_message("assistant"):
-        st.markdown(reply)
+        message_placeholder = st.empty()
+        message_placeholder.markdown("Rahul is typing... ⏳")
+
+        try:
+            response = llm.invoke(
+                input=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    *st.session_state.chat_history
+                ]
+            )
+
+            full_response = response.content
+
+        except Exception:
+            full_response = "Hmm... something went wrong, but I'm still here with you."
+
+        # ✨ Simulate typing (character by character)
+        typed_text = ""
+        for char in full_response:
+            typed_text += char
+            message_placeholder.markdown(typed_text)
+            time.sleep(0.01)
+
+    # Save response (memory)
+    st.session_state.chat_history.append({
+        "role": "assistant",
+        "content": full_response
+    })
